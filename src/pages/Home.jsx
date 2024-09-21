@@ -190,7 +190,7 @@ export default function Home() {
                             _hover: {
                                 backgroundColor: 'purple.800',
                                 color: 'white',
-                            }
+                            },
                         }}
                     >
                         <IconUser />

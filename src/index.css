@@ -1,5 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap&family=Caveat:wght@400..700&display=swap');
 
+@keyframes avatar-floating {
+  0% {
+    transform: translateY(-2px) rotate(-4deg);
+  }
+
+  50% {
+    transform: translateY(2px) rotate(-2deg);
+  }
+
+  100% {
+    transform: translateY(-2px) rotate(-4deg);
+  }
+}
+
 html {
   scroll-behavior: smooth;
 }

@@ -31,18 +31,17 @@ export default function Header() {
                 flexDirection: 'row',
                 alignItems: 'center',
                 gap: 2,
-                // udner 62em
                 '@media (max-width: 62em)': {
                     display: 'none',
+                },
+                '& > *:hover': {
+                    color: 'gray.300'
                 }
             }}>
                 {routes.map(route => (
                     <Link key={route.href} to={route.href} sx={{
                         mx: 2,
                         cursor: 'pointer',
-                        _hover: {
-                            color: 'gray.300'
-                        }
                     }}>{route.name}</Link>
                 ))}
             </Box>

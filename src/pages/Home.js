@@ -1,36 +1,54 @@
-import { background, Box, IconButton, Popover, PopoverArrow, PopoverBody, PopoverCloseButton, PopoverContent, PopoverTrigger, Text } from "@chakra-ui/react";
+import {
+    Box,
+    IconButton,
+    Popover,
+    PopoverArrow,
+    PopoverBody,
+    PopoverContent,
+    PopoverTrigger,
+    Text,
+} from "@chakra-ui/react";
 import { IconBubble, IconChevronLeft, IconChevronRight, IconUser } from "@tabler/icons-react";
-import { a, abbr } from "framer-motion/client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const tagok = [
+    {
+        name: "Hettich Rebeka Viktória",
+        avatar: 'https://place-hold.it/800/800',
+        about: ""
+    },
+    {
+        name: "Tóth Tamás Bence",
+        avatar: 'https://place-hold.it/800/800',
+        about: ""
+    },
     {
         name: 'Sonkoly Bence',
         avatar: 'https://avatars.githubusercontent.com/u/58268847?v=4',
         about: `4 éve foglalkozom weboldalak fejlesztésével. Általában NextJS segítségével szoktam "Full Stack" weboldalakat készíteni. 
         A backend részhez NodeJS-t, a frontend-hez pedig Reactot használok.`
     },
-    {
-        name: "Hettich Rebeka Viktória",
-        avatar: 'https://avatars.githubusercontent.com/u/58268847?v=4',
-        about: ""
-    },
-    {
-        name: "Tóth Tamás Bence",
-        avatar: 'https://avatars.githubusercontent.com/u/58268847?v=4',
-        about: ""
-    },
 ]
 
 export default function Home() {
     const [tagIndex, setTagIndex] = useState(0);
+    const scrollerRef = useRef(null);
+
+    useEffect(() => {
+        if (scrollerRef.current) {
+            scrollerRef.current.scrollTo({
+                left: tagIndex * scrollerRef.current.clientWidth,
+                behavior: 'smooth',
+            });
+        }
+    }, [tagIndex]);
 
     return (
         <>
             <Box
+                ref={scrollerRef}
                 sx={{
                     width: '100%',
-                    p: 6,
 
                     backgroundColor: "white",
                     borderRadius: '1.2rem',
@@ -41,92 +59,110 @@ export default function Home() {
 
                     display: 'flex',
                     flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 6,
-
-                    '@media (max-width: 48em)': {
-                        flexDirection: 'column',
+                    overflowX: 'auto',
+                    '&::-webkit-scrollbar': {
+                        display: 'none',
                     },
+
+                    scrollSnapType: 'x mandatory',
                 }}
             >
-                <Box
-                    sx={{
-                        width: "12rem",
-                        aspectRatio: '1/1',
-                        height: 'auto',
-                        backgroundColor: 'purple.700',
-                        borderRadius: '1.2rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        animation: 'avatar-floating 6s ease-in-out infinite',
-                        backgroundImage: `url(${tagok[tagIndex].avatar})`,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                        border: '4px solid var(--chakra-colors-purple-700)',
-                    }}
-                />
-                <Box sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 2,
-                    alignItems: 'flex-end',
-                    justifyContent: 'center',
-                    minWidth: '12rem',
-                    '@media (max-width: 48em)': {
-                        alignItems: 'center',
-                        minWidth: 'unset',
-                    },
-                }}>
-                    <Text sx={{
-                        backgroundColor: 'purple.700',
-                        color: 'white',
-                        borderRadius: '.4rem',
-                        fontSize: 'xl',
-                        fontWeight: 'bold',
-                        width: '100%',
-                        p: 2,
-                        px: 4,
-                        textAlign: 'right',
-                        '@media (max-width: 48em)': {
-                            textAlign: 'center',
-                        },
-                    }}>
-                        {tagok[tagIndex].name}
-                    </Text>
-                    <Popover>
-                        <PopoverTrigger>
-                            <Box as="button" sx={{
+                {tagok.map((tag, index) => (
+                    <Box
+                        index={index}
+                        sx={{
+                            p: 6,
+                            display: 'flex',
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6,
+                            width: '100%',
+                            flexShrink: 0,
+                            scrollSnapAlign: 'start',
+                            '@media (max-width: 48em)': {
+                                flexDirection: 'column',
+                            },
+                        }}>
+                        <Box
+                            sx={{
+                                width: "12rem",
+                                aspectRatio: '1/1',
+                                height: 'auto',
+                                backgroundColor: 'purple.700',
+                                borderRadius: '1.2rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                animation: 'avatar-floating 6s ease-in-out infinite',
+                                backgroundImage: `url(${tag.avatar})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                border: '4px solid var(--chakra-colors-purple-700)',
+                            }}
+                        />
+                        <Box sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 2,
+                            alignItems: 'flex-end',
+                            justifyContent: 'center',
+                            minWidth: '12rem',
+                            '@media (max-width: 48em)': {
+                                alignItems: 'center',
+                                minWidth: 'unset',
+                            },
+                        }}>
+                            <Text sx={{
                                 backgroundColor: 'purple.700',
                                 color: 'white',
                                 borderRadius: '.4rem',
                                 fontSize: 'xl',
                                 fontWeight: 'bold',
-                                display: 'flex',
-                                flexDirection: 'row',
-                                gap: 2,
-                                width: 'fit-content',
-                                cursor: 'pointer',
+                                width: '100%',
                                 p: 2,
                                 px: 4,
-                                '&:hover': {
-                                    backgroundColor: 'purple.800',
-                                }
+                                textAlign: 'right',
+                                '@media (max-width: 48em)': {
+                                    textAlign: 'center',
+                                },
                             }}>
-                                <IconBubble /><span>Rólam</span>
-                            </Box>
-                        </PopoverTrigger>
-                        <PopoverContent sx={{
-                            maxWidth: '100vw',
-                        }}>
-                            <PopoverArrow />
-                            <PopoverBody>
-                                {tagok[tagIndex].about}
-                            </PopoverBody>
-                        </PopoverContent>
-                    </Popover>
-                </Box>
+                                {tag.name}
+                            </Text>
+                            <Popover>
+                                <PopoverTrigger>
+                                    <Box as="button" sx={{
+                                        backgroundColor: 'purple.700',
+                                        color: 'white',
+                                        borderRadius: '.4rem',
+                                        fontSize: 'xl',
+                                        fontWeight: 'bold',
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        gap: 2,
+                                        width: 'fit-content',
+                                        cursor: 'pointer',
+                                        p: 2,
+                                        px: 4,
+                                        '&:hover': {
+                                            backgroundColor: 'purple.800',
+                                        }
+                                    }}>
+                                        <IconBubble /><span>Rólam</span>
+                                    </Box>
+                                </PopoverTrigger>
+                                <PopoverContent sx={{
+                                    maxWidth: '100vw',
+                                }}>
+                                    <PopoverArrow />
+                                    <PopoverBody>
+                                        {tag.about}
+                                    </PopoverBody>
+                                </PopoverContent>
+                            </Popover>
+                        </Box>
+                    </Box>
+                ))}
             </Box>
             <Box sx={{
                 display: 'flex',

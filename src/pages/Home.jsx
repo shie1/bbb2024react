@@ -9,7 +9,7 @@ import {
     Text,
 } from "@chakra-ui/react";
 import { IconBubble, IconChevronLeft, IconChevronRight, IconUser } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const tagok = [
     {
@@ -34,14 +34,29 @@ export default function Home() {
     const [tagIndex, setTagIndex] = useState(0);
     const scrollerRef = useRef(null);
 
-    useEffect(() => {
+    const scrollToIndex = useCallback((index) => {
         if (scrollerRef.current) {
-            scrollerRef.current.scrollTo({
-                left: tagIndex * scrollerRef.current.clientWidth,
+            const scroller = scrollerRef.current;
+            scroller.scrollTo({
+                left: scroller.clientWidth * index,
                 behavior: 'smooth',
             });
         }
-    }, [tagIndex]);
+    }, [scrollerRef]);
+
+    useEffect(() => {
+        if (scrollerRef.current) {
+            const scroller = scrollerRef.current;
+            const listener = (event) => {
+                const index = Math.round(event.target.scrollLeft / scroller.clientWidth);
+                setTagIndex(index);
+            }
+            scroller.addEventListener('scroll', listener);
+            return () => {
+                scroller.removeEventListener('scroll', listener);
+            }
+        }
+    }, [tagIndex, scrollerRef]);
 
     return (
         <>
@@ -174,7 +189,7 @@ export default function Home() {
                 <IconButton sx={{
                     borderRadius: 'full',
                 }} rounded colorScheme="purple" onClick={() => {
-                    setTagIndex(tagIndex === 0 ? tagok.length - 1 : tagIndex - 1);
+                    scrollToIndex(tagIndex === 0 ? tagok.length - 1 : tagIndex - 1);
                 }}>
                     <IconChevronLeft />
                 </IconButton>
@@ -182,7 +197,9 @@ export default function Home() {
                     <IconButton
                         key={index}
                         colorScheme="purple"
-                        onClick={() => setTagIndex(index)}
+                        onClick={() => {
+                            scrollToIndex(index);
+                        }}
                         sx={{
                             backgroundColor: index === tagIndex ? 'purple.700' : 'transparent',
                             color: index === tagIndex ? 'white' : 'purple.700',
@@ -199,7 +216,7 @@ export default function Home() {
                 <IconButton sx={{
                     borderRadius: 'full',
                 }} colorScheme="purple" onClick={() => {
-                    setTagIndex(tagIndex === tagok.length - 1 ? 0 : tagIndex + 1);
+                    scrollToIndex(tagIndex === tagok.length - 1 ? 0 : tagIndex + 1);
                 }}>
                     <IconChevronRight />
                 </IconButton>

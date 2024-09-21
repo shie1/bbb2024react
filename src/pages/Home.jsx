@@ -1,26 +1,31 @@
 import {
     Box,
+    createIcon,
     IconButton,
     Popover,
     PopoverArrow,
     PopoverBody,
     PopoverContent,
     PopoverTrigger,
+    Table,
+    TableCaption,
+    TableContainer,
+    Tbody,
+    Td,
     Text,
+    Th,
+    Thead,
+    Tr,
 } from "@chakra-ui/react";
-import { IconBubble, IconChevronLeft, IconChevronRight, IconUser } from "@tabler/icons-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { IconBubble, IconChevronLeft, IconChevronRight, IconSchool, IconUser } from "@tabler/icons-react";
+import { createElement, useCallback, useEffect, useRef, useState } from "react";
 
 const tagok = [
     {
         name: "Hettich Rebeka Viktória",
-        avatar: 'https://place-hold.it/800/800',
-        about: ""
     },
     {
         name: "Tóth Tamás Bence",
-        avatar: 'https://place-hold.it/800/800',
-        about: ""
     },
     {
         name: 'Sonkoly Bence',
@@ -28,6 +33,11 @@ const tagok = [
         about: `4 éve foglalkozom weboldalak fejlesztésével. Általában NextJS segítségével szoktam "Full Stack" weboldalakat készíteni. 
         A backend részhez NodeJS-t, a frontend-hez pedig Reactot használok.`
     },
+    {
+        name: "Szabó-Horváth Eszter",
+        role: "Felkészítő tanár",
+        icon: IconSchool,
+    }
 ]
 
 export default function Home() {
@@ -60,167 +70,288 @@ export default function Home() {
 
     return (
         <>
-            <Box
-                ref={scrollerRef}
-                sx={{
-                    width: '100%',
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 4,
+            }}>
+                <Text sx={{
+                    textAlign: 'center',
+                    fontSize: '4xl',
+                    fontWeight: 'bold',
+                    color: 'purple.700',
+                    lineHeight: 1,
+                }}>
+                    Büszke csapatunk
+                </Text>
+                <Box
+                    ref={scrollerRef}
+                    sx={{
+                        width: '100%',
 
-                    backgroundColor: "white",
-                    borderRadius: '1.2rem',
-                    backgroundImage: 'linear-gradient(var(--chakra-colors-purple-700) 1px, transparent 1px), linear-gradient(to right, var(--chakra-colors-purple-700) 1px, transparent 1px)',
-                    backgroundSize: '40px 40px',
-                    backgroundPosition: '10px 10px, 20px 20px',
-                    shadow: 'lg',
+                        backgroundColor: "white",
+                        borderRadius: '1.2rem',
+                        backgroundImage: 'linear-gradient(var(--chakra-colors-purple-700) 1px, transparent 1px), linear-gradient(to right, var(--chakra-colors-purple-700) 1px, transparent 1px)',
+                        backgroundSize: '40px 40px',
+                        backgroundPosition: '10px 10px, 20px 20px',
+                        shadow: 'lg',
 
-                    display: 'flex',
-                    flexDirection: 'row',
-                    overflowX: 'auto',
-                    '&::-webkit-scrollbar': {
-                        display: 'none',
-                    },
+                        animation: 'grid-bg-animation 40s linear infinite',
 
-                    scrollSnapType: 'x mandatory',
-                }}
-            >
-                {tagok.map((tag, index) => (
-                    <Box
-                        index={index}
-                        sx={{
-                            p: 6,
-                            display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: 6,
-                            width: '100%',
-                            flexShrink: 0,
-                            scrollSnapAlign: 'start',
-                            '@media (max-width: 48em)': {
-                                flexDirection: 'column',
-                            },
-                        }}>
+                        display: 'flex',
+                        flexDirection: 'row',
+                        overflowX: 'auto',
+                        '&::-webkit-scrollbar': {
+                            display: 'none',
+                        },
+
+                        scrollSnapType: 'x mandatory',
+                    }}
+                >
+                    {tagok.map((tag, index) => (
                         <Box
+                            index={index}
                             sx={{
-                                width: "12rem",
-                                aspectRatio: '1/1',
-                                height: 'auto',
-                                backgroundColor: 'purple.700',
-                                borderRadius: '1.2rem',
+                                p: 6,
                                 display: 'flex',
+                                flexDirection: 'row',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                animation: 'avatar-floating 6s ease-in-out infinite',
-                                backgroundImage: `url(${tag.avatar})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                border: '4px solid var(--chakra-colors-purple-700)',
-                            }}
-                        />
-                        <Box sx={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: 2,
-                            alignItems: 'flex-end',
-                            justifyContent: 'center',
-                            minWidth: '12rem',
-                            '@media (max-width: 48em)': {
-                                alignItems: 'center',
-                                minWidth: 'unset',
-                            },
-                        }}>
-                            <Text sx={{
-                                backgroundColor: 'purple.700',
-                                color: 'white',
-                                borderRadius: '.4rem',
-                                fontSize: 'xl',
-                                fontWeight: 'bold',
+                                gap: 6,
                                 width: '100%',
-                                p: 2,
-                                px: 4,
-                                textAlign: 'right',
+                                flexShrink: 0,
+                                scrollSnapAlign: 'start',
                                 '@media (max-width: 48em)': {
-                                    textAlign: 'center',
+                                    flexDirection: 'column',
                                 },
                             }}>
-                                {tag.name}
-                            </Text>
-                            <Popover>
-                                <PopoverTrigger>
-                                    <Box as="button" sx={{
-                                        backgroundColor: 'purple.700',
-                                        color: 'white',
-                                        borderRadius: '.4rem',
-                                        fontSize: 'xl',
-                                        fontWeight: 'bold',
-                                        display: 'flex',
-                                        flexDirection: 'row',
-                                        gap: 2,
-                                        width: 'fit-content',
-                                        cursor: 'pointer',
-                                        p: 2,
-                                        px: 4,
-                                        '&:hover': {
-                                            backgroundColor: 'purple.800',
-                                        }
-                                    }}>
-                                        <IconBubble /><span>Rólam</span>
-                                    </Box>
-                                </PopoverTrigger>
-                                <PopoverContent sx={{
-                                    maxWidth: '100vw',
+                            {tag.avatar && <Box
+                                sx={{
+                                    width: "12rem",
+                                    aspectRatio: '1/1',
+                                    height: 'auto',
+                                    backgroundColor: 'purple.700',
+                                    borderRadius: '1.2rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    animation: 'avatar-floating 6s ease-in-out infinite',
+                                    backgroundImage: `url(${tag.avatar})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center',
+                                    border: '4px solid var(--chakra-colors-purple-700)',
+                                }}
+                            />}
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: 2,
+                                alignItems: 'flex-end',
+                                justifyContent: 'center',
+                                minWidth: '12rem',
+                                '@media (max-width: 48em)': {
+                                    alignItems: 'center',
+                                    minWidth: 'unset',
+                                },
+                            }}>
+                                <Text sx={{
+                                    backgroundColor: 'purple.700',
+                                    color: 'white',
+                                    borderRadius: '.4rem',
+                                    fontSize: 'xl',
+                                    fontWeight: 'bold',
+                                    width: '100%',
+                                    p: 2,
+                                    px: 4,
+                                    textAlign: 'right',
+                                    '@media (max-width: 48em)': {
+                                        textAlign: 'center',
+                                    },
                                 }}>
-                                    <PopoverArrow />
-                                    <PopoverBody>
-                                        {tag.about}
-                                    </PopoverBody>
-                                </PopoverContent>
-                            </Popover>
+                                    {tag.name}
+                                </Text>
+                                {tag.role && <Text sx={{
+                                    backgroundColor: 'purple.700',
+                                    color: 'white',
+                                    borderRadius: '.4rem',
+                                    fontSize: 'md',
+                                    fontWeight: 'bold',
+                                    fontStyle: 'italic',
+                                    width: 'fit-content',
+                                    margin: tag.avatar ? 'unset' : 'auto',
+                                    p: 2,
+                                    px: 4,
+                                    textAlign: 'center',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    flexDirection: 'row',
+                                    gap: 2,
+                                }}>
+                                    {tag.icon && createElement(tag.icon)}
+                                    {tag.role}
+                                </Text>}
+                                {tag.about && <Popover>
+                                    <PopoverTrigger>
+                                        <Box as="button" sx={{
+                                            backgroundColor: 'purple.700',
+                                            color: 'white',
+                                            borderRadius: '.4rem',
+                                            fontSize: 'md',
+                                            fontWeight: 'bold',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            flexDirection: 'row',
+                                            gap: 2,
+                                            width: 'fit-content',
+                                            cursor: 'pointer',
+                                            p: 2,
+                                            px: 4,
+                                            '&:hover': {
+                                                backgroundColor: 'purple.800',
+                                            }
+                                        }}>
+                                            <IconBubble size={20} /><span>Rólam</span>
+                                        </Box>
+                                    </PopoverTrigger>
+                                    <PopoverContent sx={{
+                                        maxWidth: '100vw',
+                                    }}>
+                                        <PopoverArrow />
+                                        <PopoverBody>
+                                            {tag.about}
+                                        </PopoverBody>
+                                    </PopoverContent>
+                                </Popover>}
+                            </Box>
                         </Box>
-                    </Box>
-                ))}
+                    ))}
+                </Box>
+                <Box sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: 2,
+                }}>
+                    <IconButton sx={{
+                        borderRadius: 'full',
+                    }} rounded colorScheme="purple" onClick={() => {
+                        scrollToIndex(tagIndex === 0 ? tagok.length - 1 : tagIndex - 1);
+                    }}>
+                        <IconChevronLeft />
+                    </IconButton>
+                    {tagok.map((tag, index) => (
+                        <IconButton
+                            key={index}
+                            colorScheme="purple"
+                            onClick={() => {
+                                scrollToIndex(index);
+                            }}
+                            sx={{
+                                backgroundColor: index === tagIndex ? 'purple.500' : 'transparent',
+                                color: index === tagIndex ? 'white' : 'purple.500',
+                                borderRadius: 'full',
+                                _hover: {
+                                    backgroundColor: 'purple.600',
+                                    color: 'white',
+                                },
+                            }}
+                        >
+                            {createElement(tag.icon || IconUser)}
+                        </IconButton>
+                    ))}
+                    <IconButton sx={{
+                        borderRadius: 'full',
+                    }} colorScheme="purple" onClick={() => {
+                        scrollToIndex(tagIndex === tagok.length - 1 ? 0 : tagIndex + 1);
+                    }}>
+                        <IconChevronRight />
+                    </IconButton>
+                </Box>
             </Box>
             <Box sx={{
                 display: 'flex',
-                flexDirection: 'row',
-                justifyContent: 'center',
+                flexDirection: 'column',
                 alignItems: 'center',
-                gap: 2,
+                gap: 4,
             }}>
-                <IconButton sx={{
-                    borderRadius: 'full',
-                }} rounded colorScheme="purple" onClick={() => {
-                    scrollToIndex(tagIndex === 0 ? tagok.length - 1 : tagIndex - 1);
+                <Text sx={{
+                    textAlign: 'center',
+                    fontSize: '4xl',
+                    fontWeight: 'bold',
+                    color: 'purple.700',
+                    lineHeight: 1,
                 }}>
-                    <IconChevronLeft />
-                </IconButton>
-                {tagok.map((tag, index) => (
-                    <IconButton
-                        key={index}
-                        colorScheme="purple"
-                        onClick={() => {
-                            scrollToIndex(index);
-                        }}
-                        sx={{
-                            backgroundColor: index === tagIndex ? 'purple.700' : 'transparent',
-                            color: index === tagIndex ? 'white' : 'purple.700',
-                            borderRadius: 'full',
-                            _hover: {
-                                backgroundColor: 'purple.800',
-                                color: 'white',
-                            },
-                        }}
-                    >
-                        <IconUser />
-                    </IconButton>
-                ))}
-                <IconButton sx={{
-                    borderRadius: 'full',
-                }} colorScheme="purple" onClick={() => {
-                    scrollToIndex(tagIndex === tagok.length - 1 ? 0 : tagIndex + 1);
+                    A "<span style={{
+                        fontStyle: 'italic',
+                    }}>balynokokról</span>" bővebben
+                </Text>
+                <Box sx={{
+                    width: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                    '& > *': {
+                        textAlign: "justify",
+                    }
                 }}>
-                    <IconChevronRight />
-                </IconButton>
+                    <Text>
+                        A Székesfehérvári SzC Széchenyi István Műszaki Technikum 12.E osztályának tanulói vagyunk. Informatika és távközlés szakon indultunk a 2021/2022-es tanévben és a sikeres ágazati alapvizsgánk után szoftverfejlesztő ágazaton folytattuk tovább a tanulmányainkat.
+                    </Text>
+                    <Text>
+                        Csapatunkból mindhárman a webfejlesztésben találtuk meg a számunkra legérdekesebb területet és a legtöbb tapasztalatunkat is ezen a területen szereztük. Már korábban is számos tanulmányi versenyen mérettettük meg tudásunkat egyénileg és az idei évben szerveződtünk össze a Bakonyi Bitfaragó Bajnokságra Szabó-Horváth Eszter felkészítő tanárunk támogatásával.
+                    </Text>
+                </Box>
+                <TableContainer sx={{
+                    width: '100%',
+                    border: '1px solid var(--chakra-colors-gray-200)',
+                    borderRadius: '1.2rem',
+                }}>
+                    <Table variant="simple">
+                        <TableCaption>
+                            A projektben használt technológiák
+                        </TableCaption>
+                        <Thead>
+                            <Tr>
+                                <Th>Technológia</Th>
+                                <Th>Felhasználás</Th>
+                            </Tr>
+                        </Thead>
+                        <Tbody>
+                            <Tr>
+                                <Td>React</Td>
+                                <Td>JavaScript könyvtár felhasználói felületek készítésére.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>Chakra UI</Td>
+                                <Td>Alap komponensek és stílusok.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>Framer Motion</Td>
+                                <Td>A CSS keyframek mellett a bonyolultabb animációk készítésére.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>Git</Td>
+                                <Td>Kollaboráció és verziókezelés.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>Tabler Icons</Td>
+                                <Td>Ikonszett.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>GitHub</Td>
+                                <Td>Git tárhely.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>Visual Studio Code</Td>
+                                <Td>Fejlesztői környezet.</Td>
+                            </Tr>
+                        </Tbody>
+                    </Table>
+                </TableContainer>
             </Box>
+
         </>
     );
 }

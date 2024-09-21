@@ -10,7 +10,7 @@ import Tankolas from './pages/Tankolas';
 export const theme = extendTheme({
   fonts: {
     body: "Montserrat, sans-serif",
-  }
+  },
 })
 
 export const routes = [

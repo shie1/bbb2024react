@@ -1,6 +1,5 @@
 import {
     Box,
-    createIcon,
     IconButton,
     Popover,
     PopoverArrow,
@@ -324,16 +323,24 @@ export default function Home() {
                                 <Td>JavaScript könyvtár felhasználói felületek készítésére.</Td>
                             </Tr>
                             <Tr>
-                                <Td>Chakra UI</Td>
-                                <Td>Alap komponensek és stílusok.</Td>
-                            </Tr>
-                            <Tr>
                                 <Td>Framer Motion</Td>
                                 <Td>A CSS keyframek mellett a bonyolultabb animációk készítésére.</Td>
                             </Tr>
                             <Tr>
+                                <Td>Chakra UI</Td>
+                                <Td>Alap komponensek és stílusok.</Td>
+                            </Tr>
+                            <Tr>
                                 <Td>Git</Td>
                                 <Td>Kollaboráció és verziókezelés.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>Figma</Td>
+                                <Td>Vázlatok készítése.</Td>
+                            </Tr>
+                            <Tr>
+                                <Td>Visual Studio Code</Td>
+                                <Td>Fejlesztői környezet.</Td>
                             </Tr>
                             <Tr>
                                 <Td>Tabler Icons</Td>
@@ -342,10 +349,6 @@ export default function Home() {
                             <Tr>
                                 <Td>GitHub</Td>
                                 <Td>Git tárhely.</Td>
-                            </Tr>
-                            <Tr>
-                                <Td>Visual Studio Code</Td>
-                                <Td>Fejlesztői környezet.</Td>
                             </Tr>
                         </Tbody>
                     </Table>

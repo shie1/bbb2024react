@@ -116,7 +116,7 @@ export default function Home() {
                 >
                     {tagok.map((tag, index) => (
                         <Box
-                            index={index}
+                            key={index}
                             sx={{
                                 p: 6,
                                 display: 'flex',

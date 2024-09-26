@@ -167,25 +167,25 @@ export default function Tankolas() {
                                 <InputLeftElement pointerEvents='none'>
                                     <IconCalendar />
                                 </InputLeftElement>
-                                <Input name="date" type='date' placeholder='Dátum' />
+                                <Input name="date" type='date' placeholder='Dátum' value={""} />
                             </InputGroup>
                             <InputGroup>
                                 <InputLeftElement pointerEvents='none'>
                                     <IconGasStation />
                                 </InputLeftElement>
-                                <Input min={0} name="liters" type='number' placeholder='Liter' />
+                                <Input min={0} name="liters" type='number' placeholder='Liter' value={""} />
                             </InputGroup>
                             <InputGroup>
                                 <InputLeftElement pointerEvents='none'>
                                     <IconCash />
                                 </InputLeftElement>
-                                <Input min={0} name="price" type='number' placeholder='Ár' />
+                                <Input min={0} name="price" type='number' placeholder='Ár' value={""} />
                             </InputGroup>
                             <InputGroup>
                                 <InputLeftElement pointerEvents='none'>
                                     <IconCar />
                                 </InputLeftElement>
-                                <Input min={0} name="mileage" type='number' placeholder='Kilométeróra állás' />
+                                <Input min={0} name="mileage" type='number' placeholder='Kilométeróra állás' value={""} />
                             </InputGroup>
                         </Box>
                     </form>
@@ -279,13 +279,13 @@ export default function Tankolas() {
                     <InputLeftElement pointerEvents='none'>
                         <IconArrowBarRight />
                     </InputLeftElement>
-                    <Input placeholder='Select Date and Time' size='md' type='date' onChange={(e) => (setFilterStart(e.target.value))} value={filterStart} />
+                    <Input size='md' type='date' onChange={(e) => (setFilterStart(e.target.value))} value={filterStart || ""} />
                 </InputGroup>
                 <InputGroup>
                     <InputLeftElement pointerEvents='none'>
                         <IconArrowBarToRight />
                     </InputLeftElement>
-                    <Input placeholder='Select Date and Time' size='md' type='date' onChange={(e) => (setFilterEnd(e.target.value))} value={filterEnd} />
+                    <Input size='md' type='date' onChange={(e) => (setFilterEnd(e.target.value))} value={filterEnd || ""} />
                 </InputGroup>
                 <Button className="btn" sx={{
                     flexShrink: 0,

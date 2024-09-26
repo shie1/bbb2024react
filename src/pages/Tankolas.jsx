@@ -29,7 +29,7 @@ import {
     Thead,
     Tr,
 } from "@chakra-ui/react";
-import { IconCalendar, IconCar, IconCash, IconGasStation, IconPlus } from "@tabler/icons-react";
+import { IconArrowBarRight, IconArrowBarToRight, IconCalendar, IconCar, IconCash, IconGasStation, IconPlus, IconTrash } from "@tabler/icons-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useMemo, useRef, useState } from "react";
 import CurrencyRender from "../components/CurrencyRender";
@@ -67,6 +67,15 @@ export default function Tankolas() {
     const [filterStart, setFilterStart] = useState(null);
     const [filterEnd, setFilterEnd] = useState(null);
 
+    const dataDisplay = useMemo(() => {
+        if (filterStart && filterEnd) {
+            return data.filter((entry) => {
+                return entry.date >= new Date(filterStart) && entry.date <= new Date(filterEnd);
+            })
+        }
+        return data;
+    }, [data, filterStart, filterEnd])
+
     const months = useMemo(() => {
         const _months = [];
         data.forEach((entry) => {
@@ -92,6 +101,16 @@ export default function Tankolas() {
         });
         return _months;
     }, [data])
+
+    const monthsDisplay = useMemo(() => {
+        if (filterStart && filterEnd) {
+            return Object.entries(months).filter(([key, entry]) => {
+                return new Date(filterStart).getFullYear() === parseInt(key.split(" - ")[0]) && new Date(filterStart).getMonth() + 1 === parseInt(key.split(" - ")[1]);
+            })
+        }
+        return Object.entries(months);
+    }, [months, filterStart, filterEnd])
+
     const trips = useMemo(() => {
         const _data = data.sort((a, b) => {
             return a.date - b.date;
@@ -113,6 +132,15 @@ export default function Tankolas() {
             return a.consumption - b.consumption;
         });
     }, [data])
+
+    const tripsDisplay = useMemo(() => {
+        if (filterStart && filterEnd) {
+            return trips.filter((entry) => {
+                return new Date(entry.start) >= new Date(filterStart) && new Date(entry.end) <= new Date(filterEnd);
+            })
+        }
+        return trips;
+    }, [trips, filterStart, filterEnd])
 
     const [modalOpen, setModalOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -243,6 +271,37 @@ export default function Tankolas() {
             <Button onClick={() => setModalOpen(true)} colorScheme="purple" leftIcon={<IconPlus />}>
                 Új tankolás
             </Button>
+            <Box sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                gap: 4,
+                width: '100%',
+                alignItems: 'center',
+                '@media (max-width: 48em)': {
+                    flexDirection: 'column',
+                    '& .btn': {
+                        width: '100%',
+                    }
+                }
+            }}>
+                <InputGroup>
+                    <InputLeftElement pointerEvents='none'>
+                        <IconArrowBarRight />
+                    </InputLeftElement>
+                    <Input placeholder='Select Date and Time' size='md' type='date' onChange={(e) => (setFilterStart(e.target.value))} value={filterStart} />
+                </InputGroup>
+                <InputGroup>
+                    <InputLeftElement pointerEvents='none'>
+                        <IconArrowBarToRight />
+                    </InputLeftElement>
+                    <Input placeholder='Select Date and Time' size='md' type='date' onChange={(e) => (setFilterEnd(e.target.value))} value={filterEnd} />
+                </InputGroup>
+                <Button className="btn" sx={{
+                    flexShrink: 0,
+                }} colorScheme="red" onClick={() => { setFilterEnd(null); setFilterStart(null) }} leftIcon={<IconTrash />}>
+                    Szűrők törlése
+                </Button>
+            </Box>
             <Tabs colorScheme="purple" sx={{
                 width: "100%",
             }}>
@@ -280,7 +339,7 @@ export default function Tankolas() {
                                     </Tr>
                                 </Thead>
                                 <Tbody>
-                                    {data.sort((a, b) => {
+                                    {dataDisplay.sort((a, b) => {
                                         return b.date - a.date
                                     }).map((entry, index) => (
                                         <Tr key={index}>
@@ -321,9 +380,7 @@ export default function Tankolas() {
                                     </Tr>
                                 </Thead>
                                 <Tbody>
-                                    {Object.entries(months).sort(([a], [b]) => {
-                                        return b.localeCompare(a);
-                                    }).map(([key, entry], index) => (
+                                    {monthsDisplay.map(([key, entry], index) => (
                                         <Tr key={index}>
                                             <Td>{key}</Td>
                                             <Td>{numberFormatter.format(entry.liters)} liter</Td>
@@ -368,7 +425,7 @@ export default function Tankolas() {
                                     </Tr>
                                 </Thead>
                                 <Tbody>
-                                    {trips.map((entry, index) => (
+                                    {tripsDisplay.map((entry, index) => (
                                         <Tr key={index}>
                                             <Td>{entry.start}</Td>
                                             <Td>{entry.end}</Td>

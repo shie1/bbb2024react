@@ -25,6 +25,8 @@ const tagok = [
     },
     {
         name: "Tóth Tamás Bence",
+        avatar: 'https://avatars.githubusercontent.com/u/134372668?v=4',
+        about: '3 éve foglalkozom weboldalak fejlesztésével. Általában ReactJS segítségével szoktam "Frontend" weboldalakat készíteni. A backend részhez NodeJS-t használok. FullStack alkalmazásokhoz NextJs-t használok.'
     },
     {
         name: 'Sonkoly Bence',
@@ -106,6 +108,10 @@ export default function Home() {
                         },
 
                         scrollSnapType: 'x mandatory',
+
+                        '@media (hover: hover)': {
+                            pointerEvents: 'none',
+                        }
                     }}
                 >
                     {tagok.map((tag, index) => (
@@ -206,6 +212,7 @@ export default function Home() {
                                             cursor: 'pointer',
                                             p: 2,
                                             px: 4,
+                                            pointerEvents: 'all',
                                             '&:hover': {
                                                 backgroundColor: 'purple.800',
                                             }

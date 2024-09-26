@@ -116,8 +116,6 @@ export default function Tankolas() {
             return a.date - b.date;
         })
         const _trips = [];
-        // trips are the difference between two consecutive entries
-        // {start: string, end: string, liters: number, price: number, mileage: number, consumption: number}
         for (let i = 0; i < data.length - 1; i++) {
             _trips.push({
                 start: _data[i].date.toLocaleDateString(),
@@ -157,13 +155,6 @@ export default function Tankolas() {
                     flexDirection: 'column',
                     gap: 4,
                 }}>
-                    {/* 
-                        Paraméterek:
-                        - Dátum
-                        - Liter
-                        - Ár
-                        - Kilométeróra állás
-                    */}
                     <form ref={modalForm} onSubmit={(e) => {
                         e.preventDefault();
                     }}>

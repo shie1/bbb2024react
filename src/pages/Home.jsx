@@ -22,7 +22,7 @@ import { createElement, useCallback, useEffect, useRef, useState } from "react";
 const tagok = [
     {
         name: "Hettich Rebeka Viktória",
-        avatar: '/r.avatar.jpg',
+        avatar: '/r_avatar.jpg',
     },
     {
         name: "Tóth Tamás Bence",

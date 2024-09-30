@@ -23,6 +23,7 @@ const tagok = [
     {
         name: "Hettich Rebeka Viktória",
         avatar: '/r_avatar.jpg',
+        about:'Pár éve foglalkozom weboldalakkal de komolyabban csak mostanában kezdtem el. Ezt a lehetőséget szeretném kihasználni hogy jobban elmerüljek a webfejlesztés világában.'
     },
     {
         name: "Tóth Tamás Bence",

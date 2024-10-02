@@ -22,7 +22,7 @@ import { createElement, useCallback, useEffect, useRef, useState } from "react";
 const tagok = [
     {
         name: "Hettich Rebeka Viktória",
-        avatar: '/r_avatar.jpg',
+        avatar: './r_avatar.jpg',
         about:'Pár éve foglalkozom weboldalakkal de komolyabban csak mostanában kezdtem el. Ezt a lehetőséget szeretném kihasználni hogy jobban elmerüljek a webfejlesztés világában.'
     },
     {

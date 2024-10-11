@@ -2,10 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
-import { createBrowserRouter, createHashRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
+import { createHashRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import Home from './pages/Home';
 import PageContainer from './components/PageContainer';
 import Tankolas from './pages/Tankolas';
+import Alma from './pages/Alma';
 
 export const theme = extendTheme({
   fonts: {
@@ -23,6 +24,11 @@ export const routes = [
     name: "Tankolás",
     href: '/tankolas',
     element: <Tankolas />
+  },
+  {
+    name: 'Alma',
+    href: '/alma',
+    element: <Alma />
   }
 ]
 

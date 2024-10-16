@@ -91,7 +91,6 @@ export default function Alma() {
     }, [seed, maxSteps, generateFieldData])
 
     useEffect(() => {
-        // handle arrow keys for movement, if the player is not set, send toast
         const handleKeyDown = (e) => {
             if (playerPosition.x === undefined && playerPosition.y === undefined) {
                 if (

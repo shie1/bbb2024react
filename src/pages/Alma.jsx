@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Box, Text } from "@chakra-ui/react";
+import { Link, useLocation } from "react-router-dom";
+import { Box, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from "@chakra-ui/react";
 import { IconApple, IconArrowBounce, IconCheck } from "@tabler/icons-react";
 
 export default function Alma() {
@@ -19,13 +19,15 @@ export default function Alma() {
     const [remainingSteps, setRemainingSteps] = useState(maxSteps)
     const [harvestedApples, setHarvestedApples] = useState(0)
 
-    const fieldData = useMemo(() => {
-        const random = (seed) => {
-            const x = Math.sin(seed++) * 10000;
+    const generateFieldData = useCallback((_seed) => {
+        const random = (__seed) => {
+            const x = Math.sin(__seed++) * 10000;
             return Math.floor((x - Math.floor(x)) * 9) + 1;
         }
-        return [...Array(height)].map((_, y) => [...Array(width)].map((_, x) => random(seed + x + y * width)))
-    }, [width, height, seed])
+        return [...Array(height)].map((_, y) => [...Array(width)].map((_, x) => random(_seed + x + y * width)))
+    }, [width, height])
+
+    const fieldData = useMemo(() => generateFieldData(seed), [generateFieldData, seed])
 
     const [fields, setFields] = useState(fieldData)
 
@@ -45,6 +47,16 @@ export default function Alma() {
         }
     }, [playerPosition, fields])
 
+    const checkIfStepPossible = useCallback((x, y) => {
+        if (playerPosition.x === undefined && playerPosition.y === undefined) {
+            return true
+        }
+        if (Math.abs(playerPosition.x - x) + Math.abs(playerPosition.y - y) === 1) {
+            return true
+        }
+        return false
+    }, [playerPosition])
+
     const playerMove = useCallback((x, y) => {
         if (remainingSteps === 0) {
             return
@@ -58,14 +70,52 @@ export default function Alma() {
             setPlayerPosition({ x, y })
             return
         }
-        if (Math.abs(playerPosition.x - x) + Math.abs(playerPosition.y - y) === 1) {
+        if (checkIfStepPossible(x, y)) {
             setPlayerPosition({ x, y })
             setRemainingSteps(prev => prev - 1)
         }
-    }, [playerPosition, remainingSteps])
+    }, [playerPosition, remainingSteps, fields, checkIfStepPossible])
 
     return (
         <>
+            <Modal
+                isOpen={remainingSteps === 0}
+                onClose={() => { }}
+            >
+                <ModalOverlay />
+                <ModalContent>
+                    <ModalHeader>Elfogytak a lépéseid!</ModalHeader>
+                    <ModalBody>
+                        <Text>Összeszedett almák száma: {harvestedApples}</Text>
+                        <Text>Elfogyott a lépéseid száma: {maxSteps}</Text>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Box sx={{
+                            display: 'flex',
+                            gap: 4,
+                        }}>
+                            <Button
+                                onClick={() => {
+                                    window.history.pushState({}, '', `/#/alma?s=${seed}`)
+                                    window.location.reload()
+                                }}
+                                colorScheme="yellow"
+                            >
+                                Újrakezdés
+                            </Button>
+                            <Button
+                                onClick={() => {
+                                    window.history.pushState({}, '', `/#/alma`)
+                                    window.location.reload()
+                                }}
+                                colorScheme="blue"
+                            >
+                                Új játék
+                            </Button>
+                        </Box>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
             <Box sx={{
                 display: 'flex',
                 justifyContent: 'center',
@@ -127,21 +177,27 @@ export default function Alma() {
                             backgroundColor: 'var(--chakra-colors-blue-500)',
                             color: 'white',
                         },
+                        '&.possible:hover': {
+                            backgroundColor: 'var(--chakra-colors-blue-200)',
+                        }
                     },
                 }}>
                     <tbody>
                         {fields.map((row, y) => (
-                            <tr key={y}>
+                            <tr
+                                key={`${y}-${row.join('-')}`}
+                            >
                                 {row.map((value, x) => (
                                     <td
                                         onClick={() => {
                                             playerMove(x, y)
                                         }}
+                                        key={`${x}-${y}-${value}`}
                                         id={`${x}-${y}`}
-                                        key={x}
                                         className={
                                             (playerPosition.x === x && playerPosition.y === y ? 'player' : '') +
-                                            (value === 0 ? ' empty' : '')
+                                            (value === 0 ? ' empty' : '') +
+                                            (checkIfStepPossible(x, y) ? ' possible' : '')
                                         }
                                     >
                                         <div>

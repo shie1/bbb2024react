@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Box, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text } from "@chakra-ui/react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Box, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Text, useToast } from "@chakra-ui/react";
 import { IconApple, IconArrowBounce, IconCheck } from "@tabler/icons-react";
 
+const seededRandom = (seed, turn) => {
+    const x = Math.sin(seed + turn) * 10000
+    return x - Math.floor(x)
+}
+
 export default function Alma() {
-    // get route params
+    const navigate = useNavigate()
+    const toast = useToast()
+
     const { search } = useLocation()
     const { width, height, seed, maxSteps } = useMemo(() => {
         const params = new URLSearchParams(search)
@@ -20,16 +27,18 @@ export default function Alma() {
     const [harvestedApples, setHarvestedApples] = useState(0)
 
     const generateFieldData = useCallback((_seed) => {
-        const random = (__seed) => {
-            const x = Math.sin(__seed++) * 10000;
-            return Math.floor((x - Math.floor(x)) * 9) + 1;
+        const matrix = []
+        for (let y = 0; y < height; y++) {
+            const row = []
+            for (let x = 0; x < width; x++) {
+                row.push(Math.floor(seededRandom(_seed, x + y) * 9) + 1)
+            }
+            matrix.push(row)
         }
-        return [...Array(height)].map((_, y) => [...Array(width)].map((_, x) => random(_seed + x + y * width)))
+        return matrix
     }, [width, height])
 
-    const fieldData = useMemo(() => generateFieldData(seed), [generateFieldData, seed])
-
-    const [fields, setFields] = useState(fieldData)
+    const [fields, setFields] = useState([])
 
     const [playerPosition, setPlayerPosition] = useState({ x: undefined, y: undefined })
 
@@ -51,21 +60,19 @@ export default function Alma() {
         if (playerPosition.x === undefined && playerPosition.y === undefined) {
             return true
         }
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return false
+        }
         if (Math.abs(playerPosition.x - x) + Math.abs(playerPosition.y - y) === 1) {
             return true
         }
         return false
-    }, [playerPosition])
+    }, [playerPosition, width, height])
 
     const playerMove = useCallback((x, y) => {
         if (remainingSteps === 0) {
             return
         }
-        // if field is empty, dont move
-        if (fields[y][x] === 0) {
-            return
-        }
-        // if no player position set, set it
         if (playerPosition.x === undefined && playerPosition.y === undefined) {
             setPlayerPosition({ x, y })
             return
@@ -74,7 +81,60 @@ export default function Alma() {
             setPlayerPosition({ x, y })
             setRemainingSteps(prev => prev - 1)
         }
-    }, [playerPosition, remainingSteps, fields, checkIfStepPossible])
+    }, [playerPosition, remainingSteps, checkIfStepPossible])
+
+    useEffect(() => {
+        setFields(generateFieldData(seed))
+        setRemainingSteps(maxSteps)
+        setHarvestedApples(0)
+        setPlayerPosition({ x: undefined, y: undefined })
+    }, [seed, maxSteps, generateFieldData])
+
+    useEffect(() => {
+        // handle arrow keys for movement, if the player is not set, send toast
+        const handleKeyDown = (e) => {
+            if (playerPosition.x === undefined && playerPosition.y === undefined) {
+                if (
+                    ["w", "a", "s", "d", "ArrowUp", "ArrowLeft", "ArrowDown", "ArrowRight"].includes(e.key)
+                    && !toast.isActive('no-player-position')
+                ) {
+                    toast({
+                        id: 'no-player-position',
+                        title: 'Nincs játékos pozíció',
+                        description: 'Kattints egy mezőre a játék kezdéséhez!',
+                        status: 'warning',
+                        duration: 5000,
+                        isClosable: true,
+                    })
+                }
+                return
+            }
+            switch (e.key) {
+                case 'w':
+                case 'ArrowUp':
+                    playerMove(playerPosition.x, playerPosition.y - 1)
+                    break
+                case 's':
+                case 'ArrowDown':
+                    playerMove(playerPosition.x, playerPosition.y + 1)
+                    break
+                case 'a':
+                case 'ArrowLeft':
+                    playerMove(playerPosition.x - 1, playerPosition.y)
+                    break
+                case 'd':
+                case 'ArrowRight':
+                    playerMove(playerPosition.x + 1, playerPosition.y)
+                    break
+                default:
+                    break
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [playerPosition, playerMove, toast])
 
     return (
         <>
@@ -87,7 +147,7 @@ export default function Alma() {
                     <ModalHeader>Elfogytak a lépéseid!</ModalHeader>
                     <ModalBody>
                         <Text>Összeszedett almák száma: {harvestedApples}</Text>
-                        <Text>Elfogyott a lépéseid száma: {maxSteps}</Text>
+                        <Text>Megtett lépések száma: {maxSteps}</Text>
                     </ModalBody>
                     <ModalFooter>
                         <Box sx={{
@@ -96,8 +156,10 @@ export default function Alma() {
                         }}>
                             <Button
                                 onClick={() => {
-                                    window.history.pushState({}, '', `/#/alma?s=${seed}`)
-                                    window.location.reload()
+                                    setFields(generateFieldData(seed))
+                                    setRemainingSteps(maxSteps)
+                                    setHarvestedApples(0)
+                                    setPlayerPosition({ x: undefined, y: undefined })
                                 }}
                                 colorScheme="yellow"
                             >
@@ -105,8 +167,7 @@ export default function Alma() {
                             </Button>
                             <Button
                                 onClick={() => {
-                                    window.history.pushState({}, '', `/#/alma`)
-                                    window.location.reload()
+                                    navigate(`/alma?s=${Math.floor(Math.random() * 1000)}`)
                                 }}
                                 colorScheme="blue"
                             >
@@ -177,7 +238,7 @@ export default function Alma() {
                             backgroundColor: 'var(--chakra-colors-blue-500)',
                             color: 'white',
                         },
-                        '&.possible:hover': {
+                        '&.possible:hover:not(.empty)': {
                             backgroundColor: 'var(--chakra-colors-blue-200)',
                         }
                     },

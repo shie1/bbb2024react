@@ -37,3 +37,8 @@ body {
   padding: 0;
   overflow-x: hidden;
 }
+
+canvas {
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}

@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import PageContainer from './components/PageContainer';
 import Tankolas from './pages/Tankolas';
 import Alma from './pages/Alma';
+import Cars from './pages/Cars';
 
 export const theme = extendTheme({
   fonts: {
@@ -29,6 +30,11 @@ export const routes = [
     name: 'Alma',
     href: '/alma',
     element: <Alma />
+  },
+  {
+    name: 'Autók',
+    href: '/cars',
+    element: <Cars />
   }
 ]
 

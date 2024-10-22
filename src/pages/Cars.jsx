@@ -2,7 +2,7 @@ import { Box } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const TILE_SIZE = 30;
-const TILE_PER_ROW = 21;
+const TILE_PER_ROW = 15;
 const TILE_PER_COL = TILE_PER_ROW;
 
 const TILE_NAMES = [
@@ -88,7 +88,7 @@ class Road {
         const top = gameElements.roads.find(element => element.x === this.x && element.y === this.y - Road.TILE_HEIGHT);
         const bottom = gameElements.roads.find(element => element.x === this.x && element.y === this.y + Road.TILE_HEIGHT);
 
-        let tileName = 'road_horizontal';
+        let tileName = 'road_intersection';
 
         // if there is a road to the left and to the right, it's a horizontal road
         if (left && right && !top && !bottom) {
@@ -140,10 +140,6 @@ class Road {
         }
         if (left && right && !top && bottom) {
             tileName = 'road_horizontal_open_bottom';
-        }
-
-        if (left && right && top && bottom) {
-            tileName = 'road_intersection';
         }
 
         if (this.isTurbo) {
@@ -233,7 +229,6 @@ export default function Cars() {
             const x = Math.floor(e.offsetX / actualTileSizeX);
             const y = Math.floor(e.offsetY / actualTileSizeY);
 
-            console.log(x, y);
             setGameElements(ge => {
                 ge.roads.push(new Road(x, y));
                 return ge;

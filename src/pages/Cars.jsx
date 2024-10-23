@@ -193,8 +193,8 @@ export default function Cars() {
                 interval = setInterval(() => {
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     gameElements.bg.forEach(element => element.draw(ctx, tiles));
-                    gameElements.cities.forEach(element => element.draw(ctx, tiles, gameElements));
                     gameElements.roads.forEach(element => element.draw(ctx, tiles, gameElements));
+                    gameElements.cities.forEach(element => element.draw(ctx, tiles, gameElements));
                 }, 1000 / 60);
             });
         }

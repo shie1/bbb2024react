@@ -535,6 +535,7 @@ export default function Cars() {
             const x = Math.floor(e.offsetX / actualTileSizeX);
             const y = Math.floor(e.offsetY / actualTileSizeY);
 
+            if (!selectedTile) return
             let newElem = null;
             switch (selectedTile) {
                 case 'road':

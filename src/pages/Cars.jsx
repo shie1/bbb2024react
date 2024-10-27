@@ -37,7 +37,8 @@ const TILE_NAMES = [
     'service_center_3',
     'battery_1',
     'battery_2',
-    'battery_3'
+    'battery_3',
+    'fullfillment'
 ];
 
 const SPECIAL_TILE_SIZES = {
@@ -56,6 +57,7 @@ class Grass {
         this.y = y;
         this.TILE_HEIGHT = Grass.TILE_HEIGHT
         this.TILE_WIDTH = Grass.TILE_WIDTH
+        this.id = new Date().getTime();
     }
 
     draw(ctx, tiles) {
@@ -74,6 +76,7 @@ class FakeElement {
         this.y = y;
         this.TILE_HEIGHT = FakeElement.TILE_HEIGHT
         this.TILE_WIDTH = FakeElement.TILE_WIDTH
+        this.id = new Date().getTime();
     }
 
     draw() {
@@ -93,6 +96,7 @@ class City {
         this.TILE_HEIGHT = City.TILE_HEIGHT
         this.TILE_WIDTH = City.TILE_WIDTH
         this.requirements = requirements;
+        this.id = new Date().getTime();
     }
 
     checkConnection(element) {
@@ -141,6 +145,19 @@ class City {
         return dir;
     }
 
+    getFulfillingServiceCenters(gameElements) {
+        return gameElements.filter(element => element instanceof ServiceCenter).filter(sc => sc.getFulfilledCities(gameElements).some(city => city.id === this.id));
+    }
+
+    checkFullfillment(gameElements) {
+        const fulfillingServiceCenters = this.getFulfillingServiceCenters(gameElements);
+        let fullfilled = {}
+        this.requirements.forEach(req => {
+            fullfilled[req] = fulfillingServiceCenters.some(sc => sc.battery === parseInt(req.split('_')[1]));
+        })
+        return fullfilled;
+    }
+
     checkOverlap(element) {
         const ex = element.x;
         const ey = element.y;
@@ -156,7 +173,8 @@ class City {
     }
 
     draw(ctx, tiles, {
-        showRequirements = false
+        showRequirements = false,
+        gameElements,
     }) {
         ctx.drawImage(tiles["city_plate"], this.x * TILE_SIZE, this.y * TILE_SIZE, TILE_SIZE * City.TILE_WIDTH,
             TILE_SIZE * City.TILE_HEIGHT
@@ -181,10 +199,25 @@ class City {
                 boxHeight
             )
 
-            this.requirements.forEach((req, i) => {
-                // put batteries in the box, get width and height of the battery from w and h
-                ctx.drawImage(tiles[req], this.x * TILE_SIZE + (TILE_SIZE * 1.5) - (boxWidth / 2) + boxPaddingX + (w + boxSpacing) * i, this.y * TILE_SIZE - boxHeight / 2 + boxPaddingY, w, h);
-            });
+            const fullfillment = this.checkFullfillment(gameElements);
+            Object.keys(fullfillment).forEach((req, i) => {
+                const batX = this.x * TILE_SIZE + (TILE_SIZE * 1.5) - (boxWidth / 2) + boxPaddingX + (w + boxSpacing) * i
+                const batY = this.y * TILE_SIZE - boxHeight / 2 + boxPaddingY
+                ctx.drawImage(tiles[req],
+                    batX,
+                    batY,
+                    w,
+                    h);
+                const isFullfilled = fullfillment[req];
+                if (isFullfilled) {
+                    const size = 20
+                    ctx.drawImage(tiles["fullfillment"],
+                        batX + w - size,
+                        batY + h - size,
+                        size, size
+                    )
+                }
+            })
         }
     }
 }
@@ -192,15 +225,19 @@ class City {
 class ServiceCenter {
     static TILE_HEIGHT = 2;
     static TILE_WIDTH = 1;
+
     static RANGE = 3;
-    static TURBORANGE = 1.5;
+    static ROAD_STEP = 1;
+    static TURBO_STEP = .5;
 
     constructor(x, y, battery = 1) {
         this.x = x;
         this.y = y;
+        this.battery = battery;
+        this.id = new Date().getTime();
+        this.RANGE = ServiceCenter.RANGE;
         this.TILE_HEIGHT = ServiceCenter.TILE_HEIGHT
         this.TILE_WIDTH = ServiceCenter.TILE_WIDTH
-        this.battery = battery;
     }
 
     draw(ctx, tiles, {
@@ -211,8 +248,58 @@ class ServiceCenter {
         );
     }
 
-    getFulfillment(gameElements) {
-        
+    getStarterRoads(gameElements) {
+        const starterRoads = gameElements.filter(element => element instanceof Road && (
+            (element.x === this.x && element.y === this.y + this.TILE_HEIGHT) || // bottom
+            (element.x === this.x && element.y === this.y - (this.TILE_HEIGHT - 1)) || // top
+            (element.x === this.x - Road.TILE_WIDTH && element.y === this.y + (this.TILE_HEIGHT - 1)) || // left
+            (element.x === this.x + Road.TILE_WIDTH && element.y === this.y + (this.TILE_HEIGHT - 1)) // right
+        ));
+        return starterRoads
+    }
+
+    getAffectedRoads(gameElements) {
+        const starterRoads = this.getStarterRoads(gameElements);
+
+        const affectedRoads = [...starterRoads];
+
+        const alreadyAdded = new Set(starterRoads.map(road => road.id));
+
+        let remainingSteps = this.RANGE;
+        while (remainingSteps > 0) {
+            const newAffectedRoads = []
+            for (const road of affectedRoads) {
+                const roads = road.getNearbyRoads(gameElements);
+                roads.forEach((r) => {
+                    if (r && !alreadyAdded.has(r.id)) {
+                        newAffectedRoads.push(r);
+                        alreadyAdded.add(r.id);
+                    }
+                });
+            }
+            affectedRoads.push(...newAffectedRoads);
+            remainingSteps -= 1;
+        }
+
+        return affectedRoads;
+    }
+
+    getFulfilledCities(gameElements) {
+        const affectedRoads = this.getAffectedRoads(gameElements);
+        const connectedCities = []
+        const alreadyAdded = new Set();
+        for (const road of affectedRoads) {
+            const cityDir = road.getConnectedCity(gameElements);
+            const city = gameElements.find(element => element instanceof City && element.checkConnection(road) === cityDir);
+            if (city && !alreadyAdded.has(city.id)) {
+                connectedCities.push(city);
+                alreadyAdded.add(city.id);
+            }
+        }
+        const fulfilledCities = connectedCities.filter(city => {
+            return city.requirements.includes(`battery_${this.battery}`);
+        });
+        return fulfilledCities;
     }
 
     checkOverlap(element) {
@@ -240,6 +327,7 @@ class Road {
         this.isTurbo = isTurbo;
         this.TILE_HEIGHT = Road.TILE_HEIGHT
         this.TILE_WIDTH = Road.TILE_WIDTH
+        this.id = new Date().getTime();
     }
 
     getNearbyRoads(gameElements) {
@@ -346,58 +434,49 @@ class Road {
     }
 }
 
+const batteryColors = {
+    1: '0, 80, 141',
+    2: '205, 76, 29',
+    3: '149, 45, 198',
+}
+
 export default function Cars() {
     const canvasRef = useRef(null);
 
     const [gameElements, setGameElements] = useState([]);
-    const [selectedTile, setSelectedTile] = useState(null);
+    const [selectedBattery, setSelectedBattery] = useState(1);
+    const [selectedTile, setSelectedTile] = useState("service_center");
     const [mousePosition, setMousePosition] = useState({ x: null, y: null });
 
     useEffect(() => {
         const listener = (e) => {
-            if (e.altKey) {
-                switch (e.key) {
-                    case 't':
-                        e.preventDefault();
-                        setSelectedTile('turbo_road');
-                        break;
-                    case 'r':
-                        e.preventDefault();
-                        setSelectedTile('road');
-                        break;
-                    case 'c':
-                        e.preventDefault();
-                        setSelectedTile('city');
-                        break;
-                    case 'Enter':
-                        e.preventDefault();
-                        setSelectedTile(null);
-                        console.log(gameElements)
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                switch (e.key) {
-                    case '1':
-                        e.preventDefault();
-                        setSelectedTile('service_center_1');
-                        break;
-                    case '2':
-                        e.preventDefault();
-                        setSelectedTile('service_center_2');
-                        break;
-                    case '3':
-                        e.preventDefault();
-                        setSelectedTile('service_center_3');
-                        break;
-                    case 'Enter':
-                        e.preventDefault();
-                        setSelectedTile(null);
-                        break;
-                    default:
-                        break;
-                }
+            switch (e.key) {
+                case 'r':
+                    e.preventDefault();
+                    setSelectedTile('road');
+                    break;
+                case 'c':
+                    e.preventDefault();
+                    setSelectedTile('city');
+                    break;
+                case 's':
+                    e.preventDefault();
+                    setSelectedTile('service_center');
+                    break;
+                case '1':
+                    e.preventDefault();
+                    setSelectedBattery(1);
+                    break;
+                case '2':
+                    e.preventDefault();
+                    setSelectedBattery(2);
+                    break;
+                case '3':
+                    e.preventDefault();
+                    setSelectedBattery(3);
+                    break;
+                default:
+                    break;
             }
         }
         window.addEventListener('keydown', listener);
@@ -442,54 +521,37 @@ export default function Cars() {
                         }
                     } else {
                         element.draw(ctx, tiles, { gameElements })
+                        if (element instanceof Road && selectedTile.startsWith('service_center')) {
+                            const affectedRoads = new ServiceCenter(mousePosition.x, mousePosition.y, parseInt(selectedTile.split('_')[2])).getAffectedRoads(gameElements);
+                            if (affectedRoads.some(road => road.id === element.id)) {
+                                // put overlay on the road
+                                ctx.fillStyle = `rgba(${batteryColors[selectedBattery]}, .2)`;
+                                ctx.fillRect(element.x * TILE_SIZE, element.y * TILE_SIZE, TILE_SIZE * Road.TILE_WIDTH, TILE_SIZE * Road.TILE_HEIGHT);
+                            }
+                        }
                     }
                 });
                 // draw the mouse position
                 if (mousePosition.x !== null && mousePosition.y !== null) {
-                    // outline the tile, .5 blue color
-                    if (!selectedTile) {
-                        ctx.fillStyle = 'rgba(0, 0, 0, .2)';
-                        ctx.fillRect(mousePosition.x * TILE_SIZE, mousePosition.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
-                    } else {
-                        ctx.strokeStyle = 'rgba(0, 0, 0, .5)';
-                        ctx.lineWidth = 2;
-                        let seltile = null
+                    const selTile = (() => {
                         switch (selectedTile) {
                             case 'road':
-                                seltile = new Road(mousePosition.x, mousePosition.y);
-                                break;
-                            case 'turbo_road':
-                                seltile = new Road(mousePosition.x, mousePosition.y, true);
-                                break;
+                                return new Road(mousePosition.x, mousePosition.y);
                             case 'city':
-                                seltile = new City(mousePosition.x, mousePosition.y);
-                                break;
+                                return new City(mousePosition.x, mousePosition.y, [`battery_${selectedBattery}`]);
+                            case 'service_center':
+                                return new ServiceCenter(mousePosition.x, mousePosition.y, selectedBattery);
                             default:
-                                if (selectedTile.startsWith('service_center')) {
-                                    seltile = new ServiceCenter(mousePosition.x, mousePosition.y, parseInt(selectedTile.split('_')[2]));
-                                }
-                                break;
+                                return new FakeElement(mousePosition.x, mousePosition.y);
                         }
-                        if (seltile instanceof ServiceCenter === false) {
-                            ctx.strokeStyle = 'rgba(0, 0, 255, .5)';
-                        } else {
-                            switch (seltile.battery) {
-                                case 1:
-                                    ctx.strokeStyle = 'rgba(0, 154, 141, 1)';
-                                    break;
-                                case 2:
-                                    ctx.strokeStyle = 'rgba(205, 76, 29, .8)';
-                                    break;
-                                case 3:
-                                    ctx.strokeStyle = 'rgba(149, 45, 198, .8)';
-                                    break;
-                                default:
-                                    break;
-                            }
-                        }
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(mousePosition.x * TILE_SIZE, mousePosition.y * TILE_SIZE, TILE_SIZE * seltile.TILE_WIDTH, TILE_SIZE * seltile.TILE_HEIGHT);
+                    })();
+                    if (selectedTile === 'road') {
+                        ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
+                    } else {
+                        ctx.strokeStyle = `rgba(${batteryColors[selectedBattery]}, 1)`;
                     }
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(selTile.x * TILE_SIZE, selTile.y * TILE_SIZE, TILE_SIZE * selTile.TILE_WIDTH, TILE_SIZE * selTile.TILE_HEIGHT);
                 }
             }
 
@@ -503,7 +565,7 @@ export default function Cars() {
             }
 
         }
-    }, [TILES, canvasRef, gameElements, mousePosition, selectedTile]);
+    }, [TILES, canvasRef, gameElements, mousePosition, selectedBattery, selectedTile]);
 
     useEffect(() => {
         if (gameElements.length === 0) {
@@ -512,6 +574,7 @@ export default function Cars() {
                     setGameElements(ge => [...ge, new Grass(i, j)]);
                 }
             }
+            setGameElements(ge => [...ge]);
         }
     }, [gameElements]);
 
@@ -547,16 +610,13 @@ export default function Cars() {
                 case 'road':
                     newElem = new Road(x, y);
                     break;
-                case 'turbo_road':
-                    newElem = new Road(x, y, true);
-                    break;
                 case 'city':
-                    newElem = new City(x, y);
+                    newElem = new City(x, y, [`battery_${selectedBattery}`]);
+                    break;
+                case 'service_center':
+                    newElem = new ServiceCenter(x, y, selectedBattery);
                     break;
                 default:
-                    if (selectedTile.startsWith('service_center')) {
-                        newElem = new ServiceCenter(x, y, parseInt(selectedTile.split('_')[2]));
-                    }
                     break;
             }
             if (newElem) {
@@ -580,7 +640,7 @@ export default function Cars() {
         return () => {
             canvas.removeEventListener('click', onClick);
         };
-    }, [canvasRef, selectedTile]);
+    }, [canvasRef, selectedBattery, selectedTile]);
 
     return (<>
         <Box sx={{

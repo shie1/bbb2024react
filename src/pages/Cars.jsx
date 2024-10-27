@@ -80,7 +80,6 @@ class FakeElement {
     }
 
     draw() {
-        // do nothing
     }
 }
 
@@ -100,7 +99,6 @@ class City {
     }
 
     checkConnection(element) {
-        // return the direction of the connection, or null if there is no connection
         const ex = element.x;
         const ey = element.y;
         const ew = element.TILE_WIDTH;
@@ -181,7 +179,6 @@ class City {
         );
         ctx.drawImage(tiles['city'], this.x * TILE_SIZE + TILE_SIZE, this.y * TILE_SIZE + TILE_SIZE, TILE_SIZE, TILE_SIZE);
         if (showRequirements) {
-            // use the special tile sizes for the battery and service center
             let { w, h } = SPECIAL_TILE_SIZES.battery
             w = w / 3;
             h = h / 3;
@@ -190,7 +187,6 @@ class City {
             const boxPaddingY = boxPaddingX / 2
             const boxWidth = w * (this.requirements.length) + (boxSpacing * (this.requirements.length - 1)) + (boxPaddingX * 2)
             const boxHeight = h + (boxPaddingY * 2)
-            // put a small grey box above the center of the city
             ctx.fillStyle = 'rgba(0, 0, 0, .5)';
             ctx.fillRect(
                 this.x * TILE_SIZE + (TILE_SIZE * 1.5) - (boxWidth / 2),
@@ -365,7 +361,6 @@ class Road {
 
         let tileName = 'road_intersection';
 
-        // if there is a road to the left and to the right, it's a horizontal road
         if (left && right && !top && !bottom) {
             tileName = 'road_horizontal';
         }
@@ -376,7 +371,6 @@ class Road {
             tileName = 'road_horizontal';
         }
 
-        // if there is a road to the top and to the bottom, it's a vertical road
         if (top && bottom && !left && !right) {
             tileName = 'road_vertical';
         }
@@ -387,19 +381,15 @@ class Road {
             tileName = 'road_vertical';
         }
 
-        // if there is a road to the left and to the bottom it's a road_bottom_left
         if (left && bottom && !right && !top) {
             tileName = 'road_top_right';
         }
-        // if there is a road to the right and to the bottom it's a road_bottom_right
         if (right && bottom && !left && !top) {
             tileName = 'road_top_left';
         }
-        // if there is a road to the left and to the top it's a road_top_left
         if (left && top && !right && !bottom) {
             tileName = 'road_bottom_right';
         }
-        // if there is a road to the right and to the top it's a road_top_right
         if (right && top && !left && !bottom) {
             tileName = 'road_bottom_left';
         }
@@ -484,7 +474,6 @@ export default function Cars() {
     }, [gameElements]);
 
     const TILES = useMemo(() => {
-        // preload all the tiles and wait for them to load
         const tiles = {};
         const promises = TILE_NAMES.map(name => {
             const img = new Image();
@@ -529,7 +518,6 @@ export default function Cars() {
                         }
                     }
                 });
-                // draw the mouse position
                 if (mousePosition.x !== null && mousePosition.y !== null) {
                     const selTile = (() => {
                         switch (selectedTile) {
@@ -544,7 +532,6 @@ export default function Cars() {
                         }
                     })();
 
-                    // check if the tile is overlapping with any other element
                     if (gameElements.filter((elem) => elem instanceof Grass === false).some(element => element.checkOverlap(selTile))) {
                         ctx.fillStyle = 'rgba(255, 0, 0, .1)';
                         ctx.fillRect(selTile.x * TILE_SIZE, selTile.y * TILE_SIZE, TILE_SIZE * selTile.TILE_WIDTH, TILE_SIZE * selTile.TILE_HEIGHT);
@@ -559,12 +546,10 @@ export default function Cars() {
                     ctx.lineWidth = 2;
                     ctx.strokeRect(selTile.x * TILE_SIZE, selTile.y * TILE_SIZE, TILE_SIZE * selTile.TILE_WIDTH, TILE_SIZE * selTile.TILE_HEIGHT);
 
-                    // draw the tile
                     selTile.draw(ctx, tiles, { gameElements });
                 }
             }
 
-            // if tiles is a promise, return
             if (TILES instanceof Promise) {
                 TILES.then(tiles => {
                     drawCanvas(tiles);
@@ -588,7 +573,6 @@ export default function Cars() {
     }, [gameElements]);
 
     useEffect(() => {
-        // onmousemove set mouse pos
         const canvas = canvasRef.current;
         const onMouseMove = (e) => {
             const actualTileSizeX = canvas.clientWidth / TILE_PER_ROW
@@ -604,10 +588,8 @@ export default function Cars() {
     }, [])
 
     useEffect(() => {
-        // onclick place road
         const canvas = canvasRef.current;
         const onClick = (e) => {
-            // determine x and y based on the click position and the width and height of the canvas and the tile size
             const actualTileSizeX = canvas.clientWidth / TILE_PER_ROW
             const actualTileSizeY = canvas.clientHeight / TILE_PER_COL
             const x = Math.floor(e.offsetX / actualTileSizeX);
@@ -696,13 +678,11 @@ export default function Cars() {
             </Box>
             <Box sx={{
                 border: "1px solid black",
-                //enforce 1:1 aspect ratio
                 aspectRatio: '1 / 1',
                 overflow: 'hidden',
                 display: 'flex',
                 maxWidth: '100%',
                 minHeight: '52rem',
-                // custom cursor (crosshair, centered)
                 cursor: 'url("./assets/electric_cars/cursor.svg") 0 12, crosshair',
             }} ref={canvasRef} as="canvas" />
             <img src="./assets/electric_cars/tileset.png" alt="" />

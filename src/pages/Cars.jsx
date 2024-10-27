@@ -1,4 +1,4 @@
-import { Box } from "@chakra-ui/react";
+import { Box, List, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const TILE_SIZE = 30;
@@ -226,9 +226,7 @@ class ServiceCenter {
     static TILE_HEIGHT = 2;
     static TILE_WIDTH = 1;
 
-    static RANGE = 3;
-    static ROAD_STEP = 1;
-    static TURBO_STEP = .5;
+    static RANGE = 4;
 
     constructor(x, y, battery = 1) {
         this.x = x;
@@ -445,7 +443,7 @@ export default function Cars() {
 
     const [gameElements, setGameElements] = useState([]);
     const [selectedBattery, setSelectedBattery] = useState(1);
-    const [selectedTile, setSelectedTile] = useState("service_center");
+    const [selectedTile, setSelectedTile] = useState("road");
     const [mousePosition, setMousePosition] = useState({ x: null, y: null });
 
     useEffect(() => {
@@ -545,6 +543,14 @@ export default function Cars() {
                                 return new FakeElement(mousePosition.x, mousePosition.y);
                         }
                     })();
+
+                    // check if the tile is overlapping with any other element
+                    if (gameElements.filter((elem) => elem instanceof Grass === false).some(element => element.checkOverlap(selTile))) {
+                        ctx.fillStyle = 'rgba(255, 0, 0, .1)';
+                        ctx.fillRect(selTile.x * TILE_SIZE, selTile.y * TILE_SIZE, TILE_SIZE * selTile.TILE_WIDTH, TILE_SIZE * selTile.TILE_HEIGHT);
+                        return;
+                    }
+
                     if (selectedTile === 'road') {
                         ctx.strokeStyle = 'rgba(0, 0, 0, 1)';
                     } else {
@@ -552,6 +558,9 @@ export default function Cars() {
                     }
                     ctx.lineWidth = 2;
                     ctx.strokeRect(selTile.x * TILE_SIZE, selTile.y * TILE_SIZE, TILE_SIZE * selTile.TILE_WIDTH, TILE_SIZE * selTile.TILE_HEIGHT);
+
+                    // draw the tile
+                    selTile.draw(ctx, tiles, { gameElements });
                 }
             }
 
@@ -645,20 +654,54 @@ export default function Cars() {
     return (<>
         <Box sx={{
             display: 'flex',
-            flexGrow: 1,
             justifyContent: 'center',
             alignItems: 'center',
             flexDirection: 'column',
             gap: 4,
         }}>
             <Box sx={{
-                flexGrow: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                gap: 4,
+            }}>
+                <Text sx={{
+                    fontSize: '2xl',
+                    fontWeight: 'bold',
+                }}>Instrukciók</Text>
+                <Text sx={{
+                    fontSize: 'lg',
+                }}>Az 1-3 billentyűk segítségével ki tudod választani az akkumulátor típust.</Text>
+                <Text sx={{
+                    fontSize: 'lg',
+                }}>
+                    Az "R", "C" és "S" billentyűk segítségével tudsz váltani a különböző elemek között.
+                </Text>
+                <UnorderedList>
+                    <ListItem>
+                        R - Út
+                    </ListItem>
+                    <ListItem>
+                        C - Város
+                    </ListItem>
+                    <ListItem>
+                        S - Szervizközpont
+                    </ListItem>
+                </UnorderedList>
+                <Text sx={{
+                    fontSize: 'lg',
+                }}>
+                    A bal egérgomb segítségével tudod elhelyezni az elemeket.
+                </Text>
+            </Box>
+            <Box sx={{
                 border: "1px solid black",
                 //enforce 1:1 aspect ratio
                 aspectRatio: '1 / 1',
                 overflow: 'hidden',
                 display: 'flex',
                 maxWidth: '100%',
+                minHeight: '52rem',
                 // custom cursor (crosshair, centered)
                 cursor: 'url("./assets/electric_cars/cursor.svg") 0 12, crosshair',
             }} ref={canvasRef} as="canvas" />

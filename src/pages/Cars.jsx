@@ -58,9 +58,7 @@ class Grass {
         this.TILE_WIDTH = Grass.TILE_WIDTH
     }
 
-    draw(ctx, tiles, {
-
-    }) {
+    draw(ctx, tiles) {
         ctx.drawImage(tiles["nature_plate"], this.x * TILE_SIZE, this.y * TILE_SIZE, TILE_SIZE * Grass.TILE_WIDTH,
             TILE_SIZE * Grass.TILE_HEIGHT
         );
@@ -194,6 +192,8 @@ class City {
 class ServiceCenter {
     static TILE_HEIGHT = 2;
     static TILE_WIDTH = 1;
+    static RANGE = 3;
+    static TURBORANGE = 1.5;
 
     constructor(x, y, battery = 1) {
         this.x = x;
@@ -209,6 +209,10 @@ class ServiceCenter {
         ctx.drawImage(tiles[`service_center_${this.battery}`], this.x * TILE_SIZE, this.y * TILE_SIZE, TILE_SIZE * ServiceCenter.TILE_WIDTH,
             TILE_SIZE * ServiceCenter.TILE_HEIGHT
         );
+    }
+
+    getFulfillment(gameElements) {
+        
     }
 
     checkOverlap(element) {
@@ -390,6 +394,8 @@ export default function Cars() {
                     case 'Enter':
                         e.preventDefault();
                         setSelectedTile(null);
+                        break;
+                    default:
                         break;
                 }
             }

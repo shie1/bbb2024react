@@ -1,4 +1,4 @@
-import { Box, List, ListItem, Text, UnorderedList } from "@chakra-ui/react";
+import { Box, ListItem, Text, UnorderedList } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 const TILE_SIZE = 30;
@@ -705,6 +705,12 @@ export default function Cars() {
                 // custom cursor (crosshair, centered)
                 cursor: 'url("./assets/electric_cars/cursor.svg") 0 12, crosshair',
             }} ref={canvasRef} as="canvas" />
+            <img src="./assets/electric_cars/tileset.png" alt="" />
+            <Text sx={{
+                fontSize: 'lg',
+            }}>
+                A játék minden eleme a képen látható grafikákból épül fel, amik külön a játékhoz készültek.
+            </Text>
         </Box>
     </>);
 }
